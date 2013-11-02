@@ -1,0 +1,28 @@
+body
+{
+background-image: url("stdback.jpg");
+background-repeat: no-repeat;
+background-position: center center;
+background-attachment: fixed;
+-webkit-background-size: cover;
+-moz-background-size: cover;
+-o-background-size: cover;
+background-size: cover;
+}
+
+h1
+{
+font-size:50px;
+color:blue;
+text-align:center;
+}
+
+h2
+{
+text-align:right
+}
+
+img
+{
+padding-left: 11%;
+}

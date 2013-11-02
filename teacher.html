@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Teacher Terminal</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <link rel="stylesheet" type="text/css" href="public/teacher.css" />
+		<style type="text/css">
+            #teacher{
+                width: 100%;
+                height: 750px;
+                border: 1px solid;
+            }
+        </style>
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+        <script src="public/libs.js"></script>
+        <script>
+            $(document).ready(function() {
+                var db = new DrawingBoard("#teacher");
+                var sr = db.getStrokeRenderer();
+                var socket = io.connect('http://' + location.host);
+                var objectStore = [];
+				
+				//*************************************************************
+				var course = prompt("Enter Name of the Course: ", "Course");
+				var lecture_name = prompt("Enter Name of the Lecture: ", "Lecture");
+				var slide_no = 1;
+				
+				
+				
+				
+				
+				//**************************************************************
+				//On completion of stroke
+                $(sr).on("complete", function(e) {
+                    var data = {x: null, y: null, e: e.type};
+                    objectStore.push(data);
+                    socket.emit('teacher', objectStore);
+                    objectStore = [];
+                });
+                
+				//Addition of points on stroke
+				$(sr).on("added", function(e, point) {
+                    var data = {x: point.x, y: point.y, e: e.type};
+                    objectStore.push(data);
+                });
+				
+				// functions for tool box
+				// Send button function
+				$("#sendbutton").click(function() {
+					alert("Sent!");
+					db.sendimage(lecture_name,slide_no);
+					socket.on('status',function(data){
+						alert(data);
+					});
+				});
+			
+				// Radio Button Events
+				$("input[name='pen']").change(function(){
+					var pen = $("input[name='pen']:checked").val();
+					var penstatus;
+					//alert("pen is "+pen);
+					if ( pen == 'Marker')
+						penstatus = true;
+					else if ( pen == 'Eraser')
+						penstatus = false;
+					db.check(penstatus);
+					socket.emit('penchanged',penstatus);
+				});
+		
+				//Clear Button Function
+				$("#clearbutton").click(function()
+				{
+					var r = confirm('Are you sure you want to clear the slide?');
+					if(r)
+					{	
+						db.clr();
+						socket.emit('clearScreen','');
+					}				
+				});
+				
+				//Color Change Function
+				$("#colorbox").change(function(){
+					//alert("In color change");
+					var colorb = document.getElementById('colorbox');
+					var color = colorb.value;
+					db.updateColor(color);
+					socket.emit('colorchanged',color);
+				});
+				
+				//Width Change Function
+				$("#width").change(function(){
+					var widthr = document.getElementById('width');
+					var width = widthr.value;
+					db.updateWidth(width);
+					socket.emit('widthchanged',width);
+				});
+				
+				//To send initial settings to the students
+				socket.on('teachersettings',function(){
+					socket.emit('settings',db.getSettings());
+				});
+				
+				socket.on('getallcanvas',function(){
+					socket.emit('setwholecanvas',db.wholecanvas());
+				});
+            });
+        </script>
+    </head>
+    <body>
+        <canvas id="teacher"></canvas>
+		<div class = "toolbox">
+			<b>Marker    <b><input type="radio" id="marker" name = "pen" value= "Marker" checked  >
+			<b>Eraser    <b><input type="radio" id="eraser" name = "pen" value= "Eraser" >
+			<b>Colors   <b> <input type="color" id="colorbox" name= "colorbox">
+			<b>Pen Width<b> <input type="range" id="width" name = "width" value = "8" min="1" max="30" step="1">
+			<input class= "btn" type= "button" id = "sendbutton" value = "Save Slide" >
+			<input class="btn" type= "button" id = "clearbutton" value = "Clear Slide" >
+		</div>
+
+    </body>
+</html>

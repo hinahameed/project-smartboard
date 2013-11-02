@@ -1,0 +1,25 @@
+body
+{
+background-image: url("backimage.png");
+background-repeat: no-repeat;
+background-position: center center;
+background-attachment: fixed;
+-webkit-background-size: cover;
+-moz-background-size: cover;
+-o-background-size: cover;
+background-size: cover;
+}
+
+.toolbox
+{
+	color: white;
+	padding-top: 2.5%;
+	padding-left: 4%;
+}
+
+.canvas
+{
+	padding-left:3%;
+	padding-top: 3%;
+
+}
